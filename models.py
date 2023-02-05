@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 class User:
     def __init__(self, first_name, last_name, phone, email) -> None:
@@ -6,7 +7,10 @@ class User:
         self.last_name = last_name
         self.phone = phone
         self.email = email
-        self.id = uuid.uuid4()
+        self._id = str(uuid.uuid4())
+
+    def get_id(self):
+        return self._id
 
 
 class BankAccount:
@@ -30,7 +34,7 @@ class BankAccount:
         return self.__owner
 
     def withdraw(self, amount):  # برداشت وجه
-        if self.__check_minimum_balance(amount):
+        if not self.__check_minimum_balance(amount):
             raise BankAccount.MinBalanceError("NOT Enough balance to withdraw!")
         self.__balance -= amount
         self.__balance -= self.WAGE_AMOUNT   # برداشت کارمزد
@@ -54,3 +58,40 @@ class BankAccount:
     def change_min_balance(cls, new_amount):  # حداقل مقدار برابر صفر است
         cls.MIN_BALANCE = max(new_amount, 0)
 
+class Card:
+    def __init__(self,type,user_id,expire_date=datetime.now(),balance=0):
+
+        self.type = type
+        if self.type == "One Way":
+            self.owner = user_id
+        elif self.type == "Credit":
+            self.owner = user_id
+            self.balance = balance
+        elif self.type == "Term Credit":
+            self.owner = user_id
+            self.balance = balance
+            self.expire_date = expire_date
+
+    def add_balance(self,bank_account:BankAccount,amount:int):
+        assert isinstance(bank_account,BankAccount)
+        assert isinstance(amount,int)
+
+        if self.type == "One Way":
+            return TypeError
+
+        elif self.type == "Credit":
+            bank_account.withdraw(amount)
+            self.balance += amount
+            return self.balance
+
+        elif self.type == "Term Credit":
+            assert self.expire_date >= datetime.now() ,"your card is expired"
+            bank_account.withdraw(amount)
+            self.balance += amount
+            return self.balance
+
+    def withdraw(self,amount:int):
+        assert isinstance(amount,int)
+        assert self.balance - amount >= 0,"Not enough balance"
+        self.balance -= amount
+        return self.balance
