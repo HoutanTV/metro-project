@@ -1,13 +1,15 @@
 import uuid
-from datetime import datetime
+from datetime import datetime,timedelta
+import random
 
 class User:
-    def __init__(self, first_name, last_name, phone, email) -> None:
+    def __init__(self, first_name, last_name, phone : int, email):
         self.first_name = first_name
         self.last_name = last_name
         self.phone = phone
         self.email = email
         self._id = str(uuid.uuid4())
+        print("Save your id but don't show it to anyone:",self._id)
 
     def get_id(self):
         return self._id
@@ -59,39 +61,76 @@ class BankAccount:
         cls.MIN_BALANCE = max(new_amount, 0)
 
 class Card:
-    def __init__(self,type,user_id,expire_date=datetime.now(),balance=0):
+    def __init__(self,type,user_id,expire_date=datetime.now(),balance=0, bankaccount=""):
 
         self.type = type
         if self.type == "One Way":
-            self.owner = user_id
+            self._owner = user_id
         elif self.type == "Credit":
-            self.owner = user_id
-            self.balance = balance
+            assert isinstance(bankaccount,BankAccount),"enter a valid bank account"
+            bankaccount.withdraw(balance)
+            self._owner = user_id
+            self._balance = balance
         elif self.type == "Term Credit":
-            self.owner = user_id
-            self.balance = balance
-            self.expire_date = expire_date
+            assert isinstance(bankaccount, BankAccount),"enter a valid bank account"
+            bankaccount.withdraw(balance)
+            self._owner = user_id
+            self._balance = balance
+            self._expire_date = expire_date
 
     def add_balance(self,bank_account:BankAccount,amount:int):
-        assert isinstance(bank_account,BankAccount)
-        assert isinstance(amount,int)
+        assert isinstance(bank_account,BankAccount),"enter a valid bank account"
+        assert isinstance(amount,int),"enter a valid amount"
 
         if self.type == "One Way":
             return TypeError
 
         elif self.type == "Credit":
             bank_account.withdraw(amount)
-            self.balance += amount
-            return self.balance
+            self._balance += amount
+            return self._balance
 
         elif self.type == "Term Credit":
-            assert self.expire_date >= datetime.now() ,"your card is expired"
+            assert self._expire_date >= datetime.now() ,"your card is expired"
             bank_account.withdraw(amount)
-            self.balance += amount
-            return self.balance
+            self._balance += amount
+            return self._balance
 
     def withdraw(self,amount:int):
-        assert isinstance(amount,int)
-        assert self.balance - amount >= 0,"Not enough balance"
-        self.balance -= amount
-        return self.balance
+        assert isinstance(amount,int),"Enter a valid amount"
+        assert self._balance - amount >= 0,"Not enough balance"
+        self._balance -= amount
+        return self._balance
+
+    def get_id(self):
+        return self._owner
+
+    def get_balance(self):
+        return self._balance
+
+
+class Ticket:
+    def __init__(self,origin,destination,date):
+        self.origin = origin
+        self.destination = destination
+        self._owner = "Metro"
+        self.price = random.randint(5,10)
+        # generates a random date between now and given date
+        self._set_date(date)
+
+    def _set_date(self,date):
+        start_date = datetime.now()
+        end_date = datetime.strptime(date, "%Y/%m/%d")
+
+        num_days = (end_date - start_date).days
+        rand_days = random.randint(1, num_days)
+        random_date = start_date + timedelta(days=rand_days)
+        self.date = random_date
+
+    def buy_ticket(self, user_id, card):
+        assert self.date > datetime.now(),"ticket is out of date"
+        assert isinstance(card,Card)
+        assert card.get_id() == user_id
+        card.withdraw(self.price)
+        self._owner = user_id
+        return self._owner
