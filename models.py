@@ -84,7 +84,7 @@ class Card:
             date_expire = datetime.strptime(expire_date, "%Y/%m/%d")
             self._expire_date = date_expire
 
-    def add_balance(self,bank_account:BankAccount,amount:float):
+    def deposit(self, bank_account:BankAccount, amount:float):
         assert isinstance(bank_account,BankAccount),"enter a valid bank account"
         if amount < 0:
             raise ValueError
@@ -104,8 +104,12 @@ class Card:
             return self._balance
 
     def withdraw(self,amount:float):
+        if self.type == "Term Credit":
+            assert self._expire_date > datetime.now(),"card is expired"
+
         if amount < 0:
             raise ValueError
+
         assert self._balance - amount >= 0,"Not enough balance"
         self._balance -= amount
         return self._balance
