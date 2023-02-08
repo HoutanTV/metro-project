@@ -18,7 +18,7 @@ class User:
 
 
 class BankAccount:
-    WAGE_AMOUNT = 600  # کارمزد
+    WAGE_AMOUNT = 0  # کارمزد
     MIN_BALANCE = 10000  # حداقل موجودی
 
     class MinBalanceError(Exception):
@@ -62,15 +62,18 @@ class BankAccount:
     def change_min_balance(cls, new_amount):  # حداقل مقدار برابر صفر است
         cls.MIN_BALANCE = max(new_amount, 0)
 
+
 class Card:
     def __init__(self,type,user_id,expire_date=datetime.now(),balance=0, bankaccount=""):
 
         self.type = type
+        self.id = str(uuid.uuid4())
         if self.type not in ["One Way","Credit","Term Credit"]:
             raise ValueError
 
         if self.type == "One Way":
             self._owner = user_id
+            self.used = False
         elif self.type == "Credit":
             assert isinstance(bankaccount,BankAccount),"enter a valid bank account"
             if balance < 0:
@@ -116,6 +119,9 @@ class Card:
         self._balance -= amount
         return self._balance
 
+    def use_card(self):
+        self.used = True
+
     def get_id(self):
         return self._owner
 
@@ -132,6 +138,14 @@ class Card:
         end_date = datetime.strptime(new_date, "%Y/%m/%d")
         self._expire_date = end_date
 
+    def __str__(self):
+        if self.type == "One way":
+            return f"Holder:{self._owner}"
+        elif self.type == "Credit":
+            return f"Holder:{self._owner}\nBalance:{self._balance}"
+        elif self.type == "Term Credit":
+            return f"Holder:{self._owner}\nBalance:{self._balance}\nExpire Date:{self._expire_date}"
+
 class Ticket:
     def __init__(self,origin,destination,date):
         self.origin = origin
@@ -140,6 +154,7 @@ class Ticket:
         self.price = random.randint(5,10)
         # generates a random date between now and given date
         self._set_date(date)
+        self.id = str(uuid.uuid4())
 
     def _set_date(self,date):
         start_date = datetime.now()
@@ -153,10 +168,15 @@ class Ticket:
     def buy_ticket(self, user_id, card):
         assert self.date > datetime.now(),"ticket is out of date"
         assert isinstance(card,Card)
-        assert card.get_id() == user_id,"user id and card owner doesn't match"
-        card.withdraw(self.price)
-        self._owner = user_id
-        return self._owner
+        if card.type == "One Way":
+            card.use_card()
+            self._owner = user_id
+            return self._owner
+        else:
+            assert card.get_id() == user_id,"user id and card owner doesn't match"
+            card.withdraw(self.price)
+            self._owner = user_id
+            return self._owner
 
     def get_id(self):
         return self._owner
@@ -187,11 +207,10 @@ class Ticket:
                 temp_dict = pickle.load(u)
 
             print("Available tickets:")
-            ticket_index = 0
-            for ticket in temp_dict["Metro"]:
-                if ticket.date > datetime.now():
-                    print(ticket_index,ticket)
-                    ticket_index += 1
+            for ticket_id in temp_dict:
+                if temp_dict[ticket_id].date > datetime.now():
+                    print(ticket_id,temp_dict[ticket_id])
+
         else:
             print("no ticket exists")
 
@@ -243,7 +262,7 @@ class SuperUser(User):
         assert isinstance(ticket, Ticket), "please enter a valid ticket"
         ticket.set_date(new_date)
 
-def update_database(item):
+def update_database(item,user=""):
     temp_dict = {}
     if isinstance(item, User):
         if os.path.exists("./users.pickle"):
@@ -256,6 +275,19 @@ def update_database(item):
         else:
             with open("users.pickle", "wb") as u:
                 temp_dict[item.get_id()] = item
+                pickle.dump(temp_dict, u)
+
+    elif isinstance(item, BankAccount):
+        if os.path.exists("./bankaccount.pickle"):
+            with open("bankaccount.pickle", "rb") as u:
+                temp_dict = pickle.load(u)
+
+            with open("bankaccount.pickle", "wb") as u:
+                temp_dict[user.get_id()] = item
+                pickle.dump(temp_dict, u)
+        else:
+            with open("bankaccount.pickle", "wb") as u:
+                temp_dict[user.get_id()] = item
                 pickle.dump(temp_dict, u)
 
     elif isinstance(item, SuperUser):
@@ -278,12 +310,12 @@ def update_database(item):
                 temp_dict = pickle.load(u)
 
             with open("cards.pickle", "wb") as u:
-                temp_dict[item.get_id()] = item
+                temp_dict[item.id] = item
                 pickle.dump(temp_dict, u)
 
         else:
             with open("cards.pickle", "wb") as u:
-                temp_dict[item.get_id()] = item
+                temp_dict[item.id] = item
                 pickle.dump(temp_dict, u)
 
     elif isinstance(item, Ticket):
@@ -291,16 +323,13 @@ def update_database(item):
             with open("tickets.pickle", "rb") as u:
                 temp_dict = pickle.load(u)
 
-            if item.get_id() == "Metro":
-                with open("tickets.pickle","wb") as u:
-                    temp_dict["Metro"].append(item)
-                    pickle.dump(temp_dict,u)
-            else:
-                with open("tickets.pickle", "wb") as u:
-                    temp_dict[item.get_id()] = item
-                    pickle.dump(temp_dict, u)
+            with open("tickets.pickle", "wb") as u:
+                temp_dict[item.id] = item
+                pickle.dump(temp_dict, u)
 
         else:
             with open("tickets.pickle", "wb") as u:
-                temp_dict["Metro"] = [item]
+                temp_dict[item.id] = item
                 pickle.dump(temp_dict, u)
+    else:
+        print("incorrect item to be updated")
