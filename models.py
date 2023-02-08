@@ -1,12 +1,14 @@
 import uuid
 from datetime import datetime,timedelta
 import random
+import os
+import pickle
 
 class User:
-    def __init__(self, first_name, last_name, phone : int, email):
+    def __init__(self, first_name, last_name, age : int, email):
         self.first_name = first_name
         self.last_name = last_name
-        self.phone = phone
+        self.age = age
         self.email = email
         self._id = str(uuid.uuid4())
         print("Save your id but don't show it to anyone:",self._id)
@@ -156,6 +158,9 @@ class Ticket:
         self._owner = user_id
         return self._owner
 
+    def get_id(self):
+        return self._owner
+
     def set_origin(self,new_origin):
         self.origin = new_origin
 
@@ -173,6 +178,25 @@ class Ticket:
     def set_date(self,date):
         new_date = datetime.strptime(date, "%Y/%m/%d")
         self.date = new_date
+
+    @staticmethod
+    def show_tickets():
+        temp_dict = {}
+        if os.path.exists("./tickets.pickle"):
+            with open("tickets.pickle", "rb") as u:
+                temp_dict = pickle.load(u)
+
+            print("Available tickets:")
+            ticket_index = 0
+            for ticket in temp_dict["Metro"]:
+                if ticket.date > datetime.now():
+                    print(ticket_index,ticket)
+                    ticket_index += 1
+        else:
+            print("no ticket exists")
+
+    def __str__(self):
+        return f"Origin:{self.origin}\nDestination:{self.destination}\nOwner:{self._owner}\nPrice:{self.price}\nDate:{self.date}"
 
 
 class SuperUser(User):
@@ -218,3 +242,65 @@ class SuperUser(User):
     def set_ticket_date(self,ticket,new_date):
         assert isinstance(ticket, Ticket), "please enter a valid ticket"
         ticket.set_date(new_date)
+
+def update_database(item):
+    temp_dict = {}
+    if isinstance(item, User):
+        if os.path.exists("./users.pickle"):
+            with open("users.pickle", "rb") as u:
+                temp_dict = pickle.load(u)
+
+            with open("users.pickle", "wb") as u:
+                temp_dict[item.get_id()] = item
+                pickle.dump(temp_dict, u)
+        else:
+            with open("users.pickle", "wb") as u:
+                temp_dict[item.get_id()] = item
+                pickle.dump(temp_dict, u)
+
+    elif isinstance(item, SuperUser):
+        if os.path.exists("./admins.pickle"):
+            with open("admins.pickle", "rb") as u:
+                temp_dict = pickle.load(u)
+
+            with open("admins.pickle", "wb") as u:
+                temp_dict[item.get_id()] = item
+                pickle.dump(temp_dict, u)
+
+        else:
+            with open("admins.pickle", "wb") as u:
+                temp_dict[item.get_id()] = item
+                pickle.dump(temp_dict, u)
+
+    elif isinstance(item, Card):
+        if os.path.exists("./cards.pickle"):
+            with open("cards.pickle", "rb") as u:
+                temp_dict = pickle.load(u)
+
+            with open("cards.pickle", "wb") as u:
+                temp_dict[item.get_id()] = item
+                pickle.dump(temp_dict, u)
+
+        else:
+            with open("cards.pickle", "wb") as u:
+                temp_dict[item.get_id()] = item
+                pickle.dump(temp_dict, u)
+
+    elif isinstance(item, Ticket):
+        if os.path.exists("./tickets.pickle"):
+            with open("tickets.pickle", "rb") as u:
+                temp_dict = pickle.load(u)
+
+            if item.get_id() == "Metro":
+                with open("tickets.pickle","wb") as u:
+                    temp_dict["Metro"].append(item)
+                    pickle.dump(temp_dict,u)
+            else:
+                with open("tickets.pickle", "wb") as u:
+                    temp_dict[item.get_id()] = item
+                    pickle.dump(temp_dict, u)
+
+        else:
+            with open("tickets.pickle", "wb") as u:
+                temp_dict["Metro"] = [item]
+                pickle.dump(temp_dict, u)
