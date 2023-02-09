@@ -67,7 +67,6 @@ class Card:
     def __init__(self,type,user_id,expire_date=datetime.now(),balance=0, bankaccount=""):
 
         self.type = type
-        self.id = str(uuid.uuid4())
         if self.type not in ["One Way","Credit","Term Credit"]:
             raise ValueError
 
@@ -88,6 +87,9 @@ class Card:
             self._balance = balance
             date_expire = datetime.strptime(expire_date, "%Y/%m/%d")
             self._expire_date = date_expire
+        self.id = str(uuid.uuid4())
+        print("Save your id but don't show it to anyone:",self.id)
+
 
     def deposit(self, bank_account:BankAccount, amount:float):
         assert isinstance(bank_account,BankAccount),"enter a valid bank account"
@@ -139,12 +141,12 @@ class Card:
         self._expire_date = end_date
 
     def __str__(self):
-        if self.type == "One way":
-            return f"Holder:{self._owner}"
+        if self.type == "One Way":
+            return f"Type:{self.type}\nHolder:{self._owner}\nCard Id:{self.id}"
         elif self.type == "Credit":
-            return f"Holder:{self._owner}\nBalance:{self._balance}"
+            return f"Type:{self.type}\nHolder:{self._owner}\nBalance:{self._balance}\nCard Id:{self.id}"
         elif self.type == "Term Credit":
-            return f"Holder:{self._owner}\nBalance:{self._balance}\nExpire Date:{self._expire_date}"
+            return f"Type:{self.type}\nHolder:{self._owner}\nBalance:{self._balance}\nExpire Date:{self._expire_date}\nCard Id:{self.id}"
 
 class Ticket:
     def __init__(self,origin,destination,date):
@@ -169,9 +171,12 @@ class Ticket:
         assert self.date > datetime.now(),"ticket is out of date"
         assert isinstance(card,Card)
         if card.type == "One Way":
-            card.use_card()
-            self._owner = user_id
-            return self._owner
+            if card.use_card() != False:
+                card.use_card()
+                self._owner = user_id
+                return self._owner
+            else:
+                raise AssertionError
         else:
             assert card.get_id() == user_id,"user id and card owner doesn't match"
             card.withdraw(self.price)
