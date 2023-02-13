@@ -372,9 +372,18 @@ please enter which type of card do you want
 3.edit a card                         
                                         
                                         ''')
-                                        with open("cards.pickle", "rb") as u:
-                                            cc_dict = pickle.load(u)
                                         sudo_card = input("please select an option:")
+
+                                        try:
+                                            with open("cards.pickle", "rb") as u:
+                                                cc_dict = pickle.load(u)
+                                        except FileNotFoundError:
+                                            print("there is no card saved you can only add cards")
+                                            if sudo_card in ["1","2"]:
+                                                print("please select an another option")
+                                                input("please press enter to continue")
+                                                continue
+
                                         if sudo_card == "1":
                                             os.system("cls")
                                             cc_type = input("1:One Way, 2:Credit, 3:Term Credit >> ")
@@ -476,7 +485,117 @@ there is no cards saved you can only add cards
                                                     print("invalid date")
                                                     input("press enter to continue")
                                 elif admin_choice == "2":
-                                    pass
+                                    while True:
+                                        os.system("cls")
+                                        print('''
+1.add a ticket
+2.delete a ticket
+3.edit a ticket
+
+
+                                                                    ''')
+
+                                        sudo_ticket = input("please select an option:")
+                                        try:
+                                            with open("tickets.pickle", "rb") as u:
+                                                ticket_dict = pickle.load(u)
+                                        except FileNotFoundError:
+                                            print("there is no ticket saved you can only add cards")
+                                            if sudo_card in ["1", "2"]:
+                                                print("please select an another option")
+                                                input("please press enter to continue")
+                                                continue
+                                        if sudo_ticket == "1":
+                                            os.system("cls")
+                                            try:
+                                                origin = input("please enter your origin: ")
+                                                destination = input("please enter your destination: ")
+                                                date = input("please enter the expire date in this format "
+                                                                            "YYYY/MM/DD: ")
+                                                update_database(Ticket(origin,destination,date))
+                                                print("ticket successfuly saved")
+                                                input("please press enter to continue")
+                                            except ValueError:
+                                                print("please enter the date in the given format!!")
+                                                input("press any key to continue")
+
+                                        elif sudo_ticket == "2":
+                                            os.system("cls")
+                                            ticket_id = input("please enter the id of card: ")
+                                            del ticket_dict[ticket_id]
+                                            print("card deleted")
+                                            input("press enter to continue")
+
+                                        elif sudo_ticket == "3":
+                                            try:
+                                                os.system("cls")
+                                                print('''
+1.change owner
+2.change origin
+3.change destination
+4.change price
+5.change date
+                                                
+                                                ''')
+                                                change_option = input("please enter an option: ")
+                                                if change_option == "1":
+                                                    ticket_id = input("please enter ticket id: ")
+                                                    changed_ticket = ticket_dict[ticket_id]
+                                                    new_owner = input("please enter the new owner id: ")
+                                                    temp_admin.set_ticket_owner(changed_ticket,new_owner)
+                                                    update_database(changed_ticket)
+                                                    print("owner changed successfuly")
+                                                    input("press enter to continue")
+
+                                                elif change_option == "2":
+                                                    ticket_id = input("please enter ticket id: ")
+                                                    changed_ticket = ticket_dict[ticket_id]
+                                                    new_origin = input("please enter the new origin: ")
+                                                    temp_admin.set_ticket_origin(changed_ticket,new_origin)
+                                                    update_database(changed_ticket)
+                                                    print("origin changed successfuly")
+                                                    input("press enter to continue")
+
+                                                elif change_option == "3":
+                                                    ticket_id = input("please enter ticket id: ")
+                                                    changed_ticket = ticket_dict[ticket_id]
+                                                    new_destination = input("please enter the new destination: ")
+                                                    temp_admin.set_ticket_destination(changed_ticket, new_destination)
+                                                    update_database(changed_ticket)
+                                                    print("destination changed successfuly")
+                                                    input("press enter to continue")
+
+                                                elif change_option == "4":
+                                                    try:
+                                                        ticket_id = input("please enter ticket id: ")
+                                                        changed_ticket = ticket_dict[ticket_id]
+                                                        new_price = input("please enter the new price: ")
+                                                        temp_admin.set_ticket_price(changed_ticket, new_price)
+                                                        update_database(changed_ticket)
+                                                        print("destination changed successfuly")
+                                                        input("press enter to continue")
+                                                    except ValueError:
+                                                        print("incorrect input for price")
+                                                        input("press enter to continue")
+
+                                                elif change_option == "5":
+                                                    try:
+                                                        ticket_id = input("please enter ticket id: ")
+                                                        changed_ticket = ticket_dict[ticket_id]
+                                                        new_date = input("please enter the date in this format "
+                                                                            "YYYY/MM/DD: ")
+                                                        temp_admin.set_ticket_date(changed_ticket, new_date)
+                                                        update_database(changed_ticket)
+                                                        print("destination changed successfuly")
+                                                        input("press enter to continue")
+                                                    except ValueError:
+                                                        print("incorrect input for price")
+                                                        input("press enter to continue")
+
+                                            except KeyError:
+                                                print("incorrect id")
+                                                input("press enter to continue")
+
                                 elif admin_choice == "3":
                                     break
                         else:

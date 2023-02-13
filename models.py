@@ -148,6 +148,7 @@ class Card:
         elif self.type == "Term Credit":
             return f"Type:{self.type}\nHolder:{self._owner}\nBalance:{self._balance}\nExpire Date:{self._expire_date}\nCard Id:{self.id}"
 
+
 class Ticket:
     def __init__(self,origin,destination,date):
         self.origin = origin
@@ -261,6 +262,7 @@ class SuperUser(User):
 
     def set_ticket_price(self,ticket,price: float):
         assert isinstance(ticket,Ticket),"please enter a valid ticket"
+        price = float(price)
         ticket.set_price(price)
 
     def set_ticket_date(self,ticket,new_date):
