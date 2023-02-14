@@ -97,7 +97,7 @@ class Card:
             raise ValueError
 
         if self.type == "One Way":
-            return TypeError
+            raise TypeError
 
         elif self.type == "Credit":
             bank_account.withdraw(amount)
@@ -226,8 +226,8 @@ class Ticket:
 
 class SuperUser(User):
 
-    def __init__(self, first_name, last_name, phone : int, email):
-        super().__init__(first_name, last_name, phone, email)
+    def __init__(self, first_name, last_name, age: int, email):
+        super().__init__(first_name, last_name, age, email)
 
     def set_card_owner(self, card,new_owner):
         assert isinstance(card,Card),"enter a valid card"

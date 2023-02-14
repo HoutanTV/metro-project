@@ -70,7 +70,7 @@ Or press enter to go back
                                     elif bankacc_input == "2":
                                         os.system("cls")
                                         try:
-                                            bank_balance = int(input("please enter your balance carefully "
+                                            bank_balance = float(input("please enter your balance carefully "
                                                                  "you can't change it further: "))
                                             if bank_balance < 0:
                                                 raise ValueError
@@ -97,6 +97,9 @@ Or press enter to go back
                                                 input("press enter to continue")
                                         except ValueError:
                                             print("wrong inputs!!")
+                                            input("press enter to continue")
+                                        except TypeError:
+                                            print("wrong input for balance")
                                             input("press enter to continue")
 
                                 elif login_input == "2":
@@ -149,9 +152,10 @@ please enter which type of card do you want
                                                 input("press enter to continue")
                                             else:
                                                 try:
-                                                    cc_balance = int(input("please enter the balance of your card"))
+                                                    cc_balance = float(input("please enter the balance of your card: "))
                                                     if cc_balance < 0 :
                                                         raise ValueError
+                                                    temp_bank.withdraw(cc_balance)
                                                     new_cc = Card("Credit",temp_user.get_id(),
                                                                   balance=cc_balance,bankaccount=temp_bank)
                                                     update_database(new_cc)
@@ -166,6 +170,9 @@ please enter which type of card do you want
                                                 except ValueError:
                                                     print("wrong input")
                                                     input("press enter to continue")
+                                                except TypeError:
+                                                    print("wrong input for balance")
+                                                    input("press enter to continue")
 
                                         elif card_type == "3":
                                             os.system("cls")
@@ -174,9 +181,10 @@ please enter which type of card do you want
                                                 input("press enter to continue")
                                             else:
                                                 try:
-                                                    cc_balance = int(input("please enter the balance of your card"))
+                                                    cc_balance = float(input("please enter the balance of your card"))
                                                     if cc_balance < 0 :
                                                         raise ValueError
+                                                    temp_bank.withdraw(cc_balance)
                                                     expire_date = input("please enter the expire date in this format "
                                                                         "YYYY/MM/DD: ")
                                                     new_cc = Card("Credit",temp_user.get_id(),
@@ -193,6 +201,9 @@ please enter which type of card do you want
 
                                                 except ValueError:
                                                     print("wrong input")
+                                                    input("press enter to continue")
+                                                except TypeError:
+                                                    print("wrong input for balance")
                                                     input("press enter to continue")
 
                                     elif card_input == "2":
@@ -387,26 +398,38 @@ please enter which type of card do you want
                                         if sudo_card == "1":
                                             os.system("cls")
                                             cc_type = input("1:One Way, 2:Credit, 3:Term Credit >> ")
-                                            user_id = input("please enter the user id:")
+                                            user_id = input("please enter the owner id:")
                                             if cc_type == "1":
                                                 new_cc = Card("One Way",user_id)
                                                 update_database(new_cc)
                                                 print("card saved successfuly")
                                                 input("press enter to continue")
                                             elif cc_type == "2":
-                                                cc_balance = input("please enter the balance of card: ")
-                                                new_cc = Card("Credit",user_id,balance=cc_balance)
-                                                update_database(new_cc)
+                                                try:
+                                                    cc_balance = float(input("please enter the balance of card: "))
+                                                    new_cc = Card("Credit",user_id,balance=cc_balance)
+                                                    update_database(new_cc)
+                                                    print("card saved successfuly")
+                                                    input("press enter to continue")
+                                                except TypeError:
+                                                    print("wrong input for balance")
+                                                    input("press enter to continue")
                                             elif cc_type == "3":
                                                 try:
-                                                    cc_balance = input("please enter the balance of card: ")
+                                                    cc_balance = float(input("please enter the balance of card: "))
                                                     cc_ex_date = input("please enter the expire date in this format "
                                                                         "YYYY/MM/DD: ")
                                                     new_cc = Card("Credit", user_id, balance=cc_balance, expire_date=cc_ex_date)
                                                     update_database(new_cc)
+                                                    print("card saved successfuly")
+                                                    input("press enter to continue")
                                                 except ValueError:
                                                     print("invalid date")
                                                     input("press enter to continue")
+                                                except TypeError:
+                                                    print("wrong input for balance")
+                                                    input("press enter to continue")
+
                                         elif sudo_card == "2":
                                             os.system("cls")
                                             try:
