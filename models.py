@@ -172,7 +172,7 @@ class Ticket:
         assert self.date > datetime.now(),"ticket is out of date"
         assert isinstance(card,Card)
         if card.type == "One Way":
-            if card.use_card() != False:
+            if not card.used:
                 card.use_card()
                 self._owner = user_id
                 return self._owner

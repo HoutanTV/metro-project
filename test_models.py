@@ -33,6 +33,15 @@ class Test(unittest.TestCase):
         self.assertRaises(AssertionError,self.card_term_credit.withdraw,10)
         self.assertRaises(TypeError,self.card_credit.withdraw,self.bankaccount,"a")
 
+    def test_ticket_buy(self):
+        self.ticket.buy_ticket(self.user.get_id(),self.card_one_way)
+        self.assertRaises(AssertionError,self.ticket.buy_ticket,self.user.get_id(),self.card_one_way)
+        self.card_term_credit.set_expire_date("2023/1/1")
+        self.assertRaises(AssertionError,self.ticket.buy_ticket,self.user.get_id(),self.card_term_credit)
+        self.card_credit.set_id("mamad")
+        self.assertRaises(AssertionError,self.ticket.buy_ticket,self.test_user_get_id(),self.card_credit) #validation
+        self.assertRaises(AssertionError,self.ticket.buy_ticket,self.user.get_id(),self.bankaccount)
+
 
 
 if __name__ == "__main__":

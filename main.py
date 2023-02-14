@@ -259,11 +259,15 @@ please enter which type of card do you want
                                                     cards_dict = pickle.load(u)
                                                 if user_card_id in cards_dict:
                                                     if cards_dict[user_card_id].get_id() == temp_user.get_id():
-                                                        user_card = cards_dict[user_card_id]
-                                                        user_ticket.buy_ticket(temp_user.get_id(),user_card)
-                                                        update_database(user_ticket)
-                                                        print("ticket successfuly bought")
-                                                        input("press enter to continue")
+                                                        try:
+                                                            user_card = cards_dict[user_card_id]
+                                                            user_ticket.buy_ticket(temp_user.get_id(),user_card)
+                                                            update_database(user_ticket)
+                                                            print("ticket successfuly bought")
+                                                            input("press enter to continue")
+                                                        except AssertionError:
+                                                            print("not enough balance in your card")
+                                                            input("press enter to continue")
                                                     else:
                                                         print("validation failed")
                                                         input("press enter to continue")
