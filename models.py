@@ -283,7 +283,22 @@ class SuperUser(User):
 
 def update_database(item,user=""):
     temp_dict = {}
-    if isinstance(item, User):
+
+    if isinstance(item, SuperUser):
+        if os.path.exists("./admins.pickle"):
+            with open("admins.pickle", "rb") as u:
+                temp_dict = pickle.load(u)
+
+            with open("admins.pickle", "wb") as u:
+                temp_dict[item.get_id()] = item
+                pickle.dump(temp_dict, u)
+
+        else:
+            with open("admins.pickle", "wb") as u:
+                temp_dict[item.get_id()] = item
+                pickle.dump(temp_dict, u)
+
+    elif isinstance(item, User):
         if os.path.exists("./users.pickle"):
             with open("users.pickle", "rb") as u:
                 temp_dict = pickle.load(u)
@@ -307,20 +322,6 @@ def update_database(item,user=""):
         else:
             with open("bankaccount.pickle", "wb") as u:
                 temp_dict[user.get_id()] = item
-                pickle.dump(temp_dict, u)
-
-    elif isinstance(item, SuperUser):
-        if os.path.exists("./admins.pickle"):
-            with open("admins.pickle", "rb") as u:
-                temp_dict = pickle.load(u)
-
-            with open("admins.pickle", "wb") as u:
-                temp_dict[item.get_id()] = item
-                pickle.dump(temp_dict, u)
-
-        else:
-            with open("admins.pickle", "wb") as u:
-                temp_dict[item.get_id()] = item
                 pickle.dump(temp_dict, u)
 
     elif isinstance(item, Card):
@@ -352,3 +353,6 @@ def update_database(item,user=""):
                 pickle.dump(temp_dict, u)
     else:
         print("incorrect item to be updated")
+
+user = User("a","b",20,"aa")
+print(isinstance(user,SuperUser))

@@ -647,8 +647,7 @@ there is no cards saved you can only add cards
 
                     new_admin = SuperUser(fname, lname, age, email)
                     update_database(new_admin)
-
-                    print("user created now you can login to your account")
+                    print("admin created now you can login to your account")
                     input("press enter to continue")
                 except ValueError:
                     print("incorrect input")
