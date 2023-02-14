@@ -140,6 +140,9 @@ class Card:
         end_date = datetime.strptime(new_date, "%Y/%m/%d")
         self._expire_date = end_date
 
+    def get_expire_date(self):
+        return self._expire_date
+
     def __str__(self):
         if self.type == "One Way":
             return f"Type:{self.type}\nHolder:{self._owner}\nCard Id:{self.id}"
@@ -229,11 +232,13 @@ class SuperUser(User):
     def __init__(self, first_name, last_name, age: int, email):
         super().__init__(first_name, last_name, age, email)
 
-    def set_card_owner(self, card,new_owner):
+    @staticmethod
+    def set_card_owner(card,new_owner):
         assert isinstance(card,Card),"enter a valid card"
         card.set_id(new_owner)
 
-    def set_card_balance(self,card,new_balance:float):
+    @staticmethod
+    def set_card_balance(card,new_balance:float):
         assert isinstance(card,Card),"enter a valid card"
         if card.type in ["Credit","Term Credit"]:
             if new_balance < 0:
@@ -241,31 +246,38 @@ class SuperUser(User):
             card.set_balance(new_balance)
         else:
             raise TypeError
-    def set_card_expire_date(self,card,new_date):
+
+    @staticmethod
+    def set_card_expire_date(card,new_date):
         assert isinstance(card, Card), "enter a valid card"
         if card.type == "Term Credit":
             card.set_expire_date(new_date)
         else:
             raise TypeError
 
-    def set_ticket_origin(self,ticket,new_origin):
+    @staticmethod
+    def set_ticket_origin(ticket,new_origin):
         assert isinstance(ticket,Ticket),"please enter a valid ticket"
         ticket.set_origin(new_origin)
 
-    def set_ticket_destination(self,ticket,new_destination):
+    @staticmethod
+    def set_ticket_destination(ticket,new_destination):
         assert isinstance(ticket,Ticket),"please enter a valid ticket"
         ticket.set_destination(new_destination)
 
-    def set_ticket_owner(self,ticket,user_id):
+    @staticmethod
+    def set_ticket_owner(ticket,user_id):
         assert isinstance(ticket,Ticket),"please enter a valid ticket"
         ticket.set_owner(user_id)
 
-    def set_ticket_price(self,ticket,price: float):
+    @staticmethod
+    def set_ticket_price(ticket,price: float):
         assert isinstance(ticket,Ticket),"please enter a valid ticket"
         price = float(price)
         ticket.set_price(price)
 
-    def set_ticket_date(self,ticket,new_date):
+    @staticmethod
+    def set_ticket_date(ticket,new_date):
         assert isinstance(ticket, Ticket), "please enter a valid ticket"
         ticket.set_date(new_date)
 
