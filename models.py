@@ -353,6 +353,3 @@ def update_database(item,user=""):
                 pickle.dump(temp_dict, u)
     else:
         print("incorrect item to be updated")
-
-user = User("a","b",20,"aa")
-print(isinstance(user,SuperUser))
